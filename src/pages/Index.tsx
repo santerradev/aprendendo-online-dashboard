@@ -1,10 +1,12 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Users, Star, Play, User, LogIn, UserPlus } from "lucide-react";
+import { BookOpen, Users, Star, Play, User, LogIn, UserPlus, Edit, Trash2 } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
 
@@ -46,6 +48,7 @@ const mockCourses = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [user, setUser] = useState(null);
@@ -64,37 +67,51 @@ const Index = () => {
     setUser(null);
   };
 
+  const handleAcessarCurso = (cursoId: number) => {
+    navigate(`/curso/${cursoId}`);
+  };
+
+  const handleAcessarPerfil = () => {
+    navigate("/perfil");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Navigation Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Aprendendo Online
+                LearnFlow
               </h1>
             </div>
             
             <nav className="flex items-center space-x-4">
+              <ThemeToggle />
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
+                  <div 
+                    className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors"
+                    onClick={handleAcessarPerfil}
+                  >
                     <img
                       src={user.foto || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"}
                       alt="Foto do usuário"
                       className="w-8 h-8 rounded-full object-cover"
                     />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {user.nome}
-                    </span>
-                    <span className="flex items-center text-xs font-medium text-gray-600 dark:text-gray-400">
-                      <span className={`flex w-2 h-2 rounded-full mr-1 ${
-                        user.tipo === 'professor' ? 'bg-teal-500' : 'bg-blue-600'
-                      }`}></span>
-                      {user.tipo === 'professor' ? 'Professor' : 'Aluno'}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {user.nome}
+                      </span>
+                      <span className="flex items-center text-xs font-medium text-gray-600 dark:text-gray-400">
+                        <span className={`flex w-2 h-2 rounded-full mr-1 ${
+                          user.tipo === 'professor' ? 'bg-teal-500' : 'bg-blue-600'
+                        }`}></span>
+                        {user.tipo === 'professor' ? 'Professor' : 'Aluno'}
+                      </span>
+                    </div>
                   </div>
                   <Button variant="outline" size="sm" onClick={handleLogout}>
                     Sair
@@ -157,7 +174,7 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockCourses.map((curso) => (
-              <Card key={curso.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={curso.id} className="overflow-hidden hover:shadow-lg transition-shadow bg-white dark:bg-gray-800">
                 <div className="relative">
                   <img
                     src={curso.capa}
@@ -172,13 +189,13 @@ const Index = () => {
                 </div>
                 
                 <CardHeader>
-                  <CardTitle className="text-lg">{curso.titulo}</CardTitle>
+                  <CardTitle className="text-lg text-gray-900 dark:text-white">{curso.titulo}</CardTitle>
                   <CardDescription className="flex items-center space-x-4 text-sm">
-                    <span className="flex items-center">
+                    <span className="flex items-center text-gray-600 dark:text-gray-400">
                       <User className="h-4 w-4 mr-1" />
                       {curso.autor}
                     </span>
-                    <span className="flex items-center">
+                    <span className="flex items-center text-gray-600 dark:text-gray-400">
                       <Star className="h-4 w-4 mr-1 text-yellow-500" />
                       {curso.avaliacao}
                     </span>
@@ -195,15 +212,18 @@ const Index = () => {
                     {user?.tipo === 'aluno' && curso.progresso > 0 && (
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span>Progresso</span>
-                          <span>{curso.progresso}%</span>
+                          <span className="text-gray-600 dark:text-gray-400">Progresso</span>
+                          <span className="text-gray-600 dark:text-gray-400">{curso.progresso}%</span>
                         </div>
                         <Progress value={curso.progresso} className="h-2" />
                       </div>
                     )}
 
                     <div className="flex space-x-2">
-                      <Button className="flex-1">
+                      <Button 
+                        className="flex-1"
+                        onClick={() => handleAcessarCurso(curso.id)}
+                      >
                         <Play className="h-4 w-4 mr-2" />
                         {user?.tipo === 'aluno' && curso.progresso > 0 ? 'Continuar' : 'Acessar'}
                       </Button>
@@ -211,10 +231,10 @@ const Index = () => {
                       {user?.tipo === 'professor' && (
                         <>
                           <Button variant="outline" size="sm">
-                            Editar
+                            <Edit className="h-4 w-4" />
                           </Button>
                           <Button variant="destructive" size="sm">
-                            Excluir
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </>
                       )}
