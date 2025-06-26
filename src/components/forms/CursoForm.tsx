@@ -1,174 +1,178 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
-import { X, Upload } from "lucide-react";
-
-interface CursoFormData {
-  curso: string;
-  materia: string;
-  autor: string;
-  descricao?: string;
-  capa: FileList | null;
-}
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Upload, BookOpen } from "lucide-react";
 
 interface CursoFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CursoFormData) => void;
-  editData?: Partial<CursoFormData>;
-  isEditing?: boolean;
+  onSubmit: (data: any) => void;
+  editData?: any;
 }
 
-const CursoForm = ({ isOpen, onClose, onSubmit, editData, isEditing = false }: CursoFormProps) => {
-  const form = useForm<CursoFormData>({
-    defaultValues: {
-      curso: editData?.curso || "",
-      materia: editData?.materia || "",
-      autor: editData?.autor || "",
-      descricao: editData?.descricao || "",
-      capa: null,
+const CursoForm = ({ isOpen, onClose, onSubmit, editData }: CursoFormProps) => {
+  const [loading, setLoading] = useState(false);
+  const [categoria, setCategoria] = useState(editData?.categoria || "");
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm({
+    defaultValues: editData || {
+      titulo: "",
+      descricao: "",
+      categoria: "",
+      nivel: "",
+      preco: "",
+      capa: null
     }
   });
 
-  if (!isOpen) return null;
-
-  const handleSubmit = (data: CursoFormData) => {
-    onSubmit(data);
-    onClose();
+  const onFormSubmit = async (data: any) => {
+    setLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      const cursoData = {
+        ...data,
+        categoria
+      };
+      console.log("Dados do curso:", cursoData);
+      onSubmit(cursoData);
+      reset();
+      onClose();
+      setLoading(false);
+    }, 1000);
   };
 
+  const handleFileChange = (files: FileList | null) => {
+    if (files && files.length > 0) {
+      console.log("Capa selecionada:", files[0]);
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-xl">
-              {isEditing ? "Editar Curso" : "Criar Novo Curso"}
-            </CardTitle>
-            <CardDescription>
-              Preencha as informações do curso
-            </CardDescription>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl flex items-center">
+            <BookOpen className="h-6 w-6 mr-2 text-teal-500" />
+            {editData ? "Editar Curso" : "Criar Novo Curso"}
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="titulo">Título do Curso *</Label>
+            <Input
+              id="titulo"
+              {...register("titulo", { required: "Título é obrigatório" })}
+              placeholder="Ex: Curso Completo de React"
+            />
+            {errors.titulo && (
+              <p className="text-sm text-red-600">{errors.titulo.message}</p>
+            )}
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
-        
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="curso"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome do Curso *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Curso Completo de React" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="materia"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Matéria *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: Programação" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+          <div className="space-y-2">
+            <Label htmlFor="descricao">Descrição *</Label>
+            <Textarea
+              id="descricao"
+              {...register("descricao", { required: "Descrição é obrigatória" })}
+              placeholder="Descreva o que os alunos aprenderão neste curso..."
+              rows={4}
+            />
+            {errors.descricao && (
+              <p className="text-sm text-red-600">{errors.descricao.message}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Categoria *</Label>
+              <Select value={categoria} onValueChange={setCategoria}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="programacao">Programação</SelectItem>
+                  <SelectItem value="design">Design</SelectItem>
+                  <SelectItem value="marketing">Marketing</SelectItem>
+                  <SelectItem value="business">Negócios</SelectItem>
+                  <SelectItem value="idiomas">Idiomas</SelectItem>
+                  <SelectItem value="musica">Música</SelectItem>
+                  <SelectItem value="fotografia">Fotografia</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nivel">Nível *</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o nível" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="iniciante">Iniciante</SelectItem>
+                  <SelectItem value="intermediario">Intermediário</SelectItem>
+                  <SelectItem value="avancado">Avançado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="preco">Preço (R$)</Label>
+            <Input
+              id="preco"
+              type="number"
+              step="0.01"
+              {...register("preco")}
+              placeholder="Ex: 99.90 (deixe vazio para curso gratuito)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="capa">Capa do Curso *</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+              <div className="mt-4">
+                <input
+                  id="capa"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleFileChange(e.target.files)}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="autor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Autor *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome do professor" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <Label htmlFor="capa" className="cursor-pointer text-blue-600 hover:text-blue-700">
+                  Clique para fazer upload da capa
+                </Label>
               </div>
+              <p className="text-sm text-gray-500 mt-2">PNG, JPG até 5MB (1200x675px recomendado)</p>
+            </div>
+          </div>
 
-              <FormField
-                control={form.control}
-                name="descricao"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrição</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Descreva o que será ensinado no curso..."
-                        className="min-h-[100px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="capa"
-                render={({ field: { onChange, ...field } }) => (
-                  <FormItem>
-                    <FormLabel>Capa do Curso *</FormLabel>
-                    <FormControl>
-                      <div className="flex items-center justify-center w-full">
-                        <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className="w-10 h-10 mb-4 text-gray-500 dark:text-gray-400" />
-                            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                              <span className="font-semibold">Clique para enviar a capa</span>
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (MAX. 5MB)</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Recomendado: 400x250px</p>
-                          </div>
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => onChange(e.target.files)}
-                            {...field}
-                          />
-                        </label>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end space-x-2 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={onClose}>
-                  Cancelar
-                </Button>
-                <Button type="submit" className="bg-teal-500 hover:bg-teal-600">
-                  {isEditing ? "Salvar Alterações" : "Criar Curso"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="flex justify-end space-x-4 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={loading} className="bg-teal-500 hover:bg-teal-600">
+              {loading ? "Salvando..." : (editData ? "Salvar Alterações" : "Criar Curso")}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

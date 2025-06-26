@@ -275,7 +275,7 @@ const Index = () => {
                   <div className="flex space-x-2">
                     <Button
                       className="flex-1 bg-teal-500 hover:bg-teal-600 text-white"
-                      onClick={() => handleAcessCourse(course.id)}
+                      onClick={() => handleAccessCourse(course.id)}
                     >
                       <Play className="h-4 w-4 mr-2" />
                       Acessar
@@ -328,31 +328,34 @@ const Index = () => {
       </main>
 
       {/* Modals */}
-      <LoginForm
-        isOpen={showLogin}
-        onClose={() => setShowLogin(false)}
-        onLogin={handleLogin}
-        onSwitchToRegister={() => {
-          setShowLogin(false);
-          setShowRegister(true);
-        }}
-      />
+      {showLogin && (
+        <LoginForm
+          onClose={() => setShowLogin(false)}
+          onLogin={handleLogin}
+          onSwitchToRegister={() => {
+            setShowLogin(false);
+            setShowRegister(true);
+          }}
+        />
+      )}
 
-      <RegisterForm
-        isOpen={showRegister}
-        onClose={() => setShowRegister(false)}
-        onRegister={handleLogin}
-        onSwitchToLogin={() => {
-          setShowRegister(false);
-          setShowLogin(true);
-        }}
-      />
+      {showRegister && (
+        <RegisterForm
+          onClose={() => setShowRegister(false)}
+          onRegister={handleLogin}
+          onSwitchToLogin={() => {
+            setShowRegister(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
 
-      <CursoForm
-        isOpen={showCursoForm}
-        onClose={() => setShowCursoForm(false)}
-        onSubmit={handleCriarCurso}
-      />
+      {showCursoForm && (
+        <CursoForm
+          onClose={() => setShowCursoForm(false)}
+          onSubmit={handleCriarCurso}
+        />
+      )}
     </div>
   );
 };
