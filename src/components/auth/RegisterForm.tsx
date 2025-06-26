@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { X, Mail, Lock, User } from "lucide-react";
+import { X, Mail, Lock, User, Upload } from "lucide-react";
 
 interface RegisterFormProps {
   onClose: () => void;
@@ -18,20 +18,39 @@ const RegisterForm = ({ onClose, onRegister, onSwitchToLogin }: RegisterFormProp
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [tipo, setTipo] = useState("aluno");
+  const [foto, setFoto] = useState<File | null>(null);
+  const [previewFoto, setPreviewFoto] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
+  const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFoto(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewFoto(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!foto) {
+      alert("Por favor, selecione uma foto de perfil.");
+      return;
+    }
+    
     setLoading(true);
 
-    // Simulate API call
     setTimeout(() => {
       const mockUser = {
         id: Date.now(),
         nome,
         email,
         tipo,
-        foto: `https://images.unsplash.com/photo-${tipo === 'professor' ? '1472099645785-5658abf4ff4e' : '1494790108755-2616b612b786'}?w=150&h=150&fit=crop&crop=face`
+        foto: previewFoto || `https://images.unsplash.com/photo-${tipo === 'professor' ? '1472099645785-5658abf4ff4e' : '1494790108755-2616b612b786'}?w=150&h=150&fit=crop&crop=face`
       };
       
       onRegister(mockUser);
@@ -41,7 +60,7 @@ const RegisterForm = ({ onClose, onRegister, onSwitchToLogin }: RegisterFormProp
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader className="relative">
           <button
             onClick={onClose}
@@ -106,6 +125,39 @@ const RegisterForm = ({ onClose, onRegister, onSwitchToLogin }: RegisterFormProp
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="foto">Foto de Perfil *</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                {previewFoto ? (
+                  <div className="space-y-2">
+                    <img
+                      src={previewFoto}
+                      alt="Preview"
+                      className="w-20 h-20 rounded-full mx-auto object-cover"
+                    />
+                    <p className="text-sm text-gray-600">Foto selecionada</p>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                    <p className="text-sm text-gray-600 mt-2">Clique para selecionar uma foto</p>
+                  </>
+                )}
+                <input
+                  id="foto"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFotoChange}
+                  className="hidden"
+                  required
+                />
+                <Label htmlFor="foto" className="cursor-pointer text-blue-600 hover:text-blue-700 block mt-2">
+                  {previewFoto ? "Trocar foto" : "Selecionar foto"}
+                </Label>
+              </div>
+              <p className="text-xs text-gray-500">PNG, JPG até 2MB</p>
+            </div>
+
             <div className="space-y-3">
               <Label>Tipo de Usuário</Label>
               <RadioGroup value={tipo} onValueChange={setTipo}>
@@ -124,6 +176,15 @@ const RegisterForm = ({ onClose, onRegister, onSwitchToLogin }: RegisterFormProp
                     <span className="flex items-center">
                       <span className="flex w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
                       Professor - Quero ensinar
+                    </span>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="admin" id="admin" />
+                  <Label htmlFor="admin" className="cursor-pointer">
+                    <span className="flex items-center">
+                      <span className="flex w-2 h-2 bg-purple-600 rounded-full mr-2"></span>
+                      Administrador - Gerenciar plataforma
                     </span>
                   </Label>
                 </div>

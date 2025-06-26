@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { X, Upload, Video, FileText } from "lucide-react";
+import { Upload, Video, FileText } from "lucide-react";
 
 interface AulaFormProps {
   isOpen: boolean;
@@ -39,7 +38,6 @@ const AulaForm = ({ isOpen, onClose, onSubmit, editData }: AulaFormProps) => {
   const onFormSubmit = async (data: any) => {
     setLoading(true);
     
-    // Simulate API call
     setTimeout(() => {
       console.log("Dados da aula:", data);
       onSubmit(data);
@@ -76,7 +74,7 @@ const AulaForm = ({ isOpen, onClose, onSubmit, editData }: AulaFormProps) => {
                 placeholder="Ex: Introdução ao React"
               />
               {errors.titulo && (
-                <p className="text-sm text-red-600">{errors.titulo.message}</p>
+                <p className="text-sm text-red-600">{String(errors.titulo.message)}</p>
               )}
             </div>
 
@@ -89,7 +87,7 @@ const AulaForm = ({ isOpen, onClose, onSubmit, editData }: AulaFormProps) => {
                 placeholder="Ex: 30"
               />
               {errors.duracao && (
-                <p className="text-sm text-red-600">{errors.duracao.message}</p>
+                <p className="text-sm text-red-600">{String(errors.duracao.message)}</p>
               )}
             </div>
           </div>
@@ -103,7 +101,7 @@ const AulaForm = ({ isOpen, onClose, onSubmit, editData }: AulaFormProps) => {
               rows={4}
             />
             {errors.descricao && (
-              <p className="text-sm text-red-600">{errors.descricao.message}</p>
+              <p className="text-sm text-red-600">{String(errors.descricao.message)}</p>
             )}
           </div>
 
@@ -117,7 +115,7 @@ const AulaForm = ({ isOpen, onClose, onSubmit, editData }: AulaFormProps) => {
               min="1"
             />
             {errors.ordem && (
-              <p className="text-sm text-red-600">{errors.ordem.message}</p>
+              <p className="text-sm text-red-600">{String(errors.ordem.message)}</p>
             )}
           </div>
 
