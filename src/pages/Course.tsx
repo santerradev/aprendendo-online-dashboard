@@ -16,7 +16,9 @@ const mockCourse = {
   materia: "Programação Web",
   autor: "Prof. João Silva",
   capa: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop",
-  descricao: "Aprenda React do básico ao avançado, incluindo hooks, context API, e desenvolvimento de aplicações completas."
+  descricao: "Aprenda React do básico ao avançado, incluindo hooks, context API, e desenvolvimento de aplicações completas.",
+  totalAulas: 15,
+  duracaoTotal: "8h 30min"
 };
 
 const mockAulas = [
@@ -462,7 +464,6 @@ const Course = ({ user }: CourseProps) => {
         }}
         onSubmit={editingAula ? handleEditarAula : handleCriarAula}
         editData={editingAula}
-        isEditing={!!editingAula}
       />
 
       <AtividadeForm
@@ -473,7 +474,6 @@ const Course = ({ user }: CourseProps) => {
         }}
         onSubmit={editingAtividade ? handleEditarAtividade : handleCriarAtividade}
         editData={editingAtividade}
-        isEditing={!!editingAtividade}
       />
     </div>
   );
