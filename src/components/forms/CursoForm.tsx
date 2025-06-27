@@ -19,7 +19,6 @@ interface CursoFormProps {
 const CursoForm = ({ isOpen, onClose, onSubmit, editData }: CursoFormProps) => {
   const [loading, setLoading] = useState(false);
   const [categoria, setCategoria] = useState(editData?.categoria || "");
-  const [nivel, setNivel] = useState(editData?.nivel || "");
 
   const {
     register,
@@ -40,11 +39,11 @@ const CursoForm = ({ isOpen, onClose, onSubmit, editData }: CursoFormProps) => {
   const onFormSubmit = async (data: any) => {
     setLoading(true);
     
+    // Simulate API call
     setTimeout(() => {
       const cursoData = {
         ...data,
-        categoria,
-        nivel
+        categoria
       };
       console.log("Dados do curso:", cursoData);
       onSubmit(cursoData);
@@ -81,7 +80,7 @@ const CursoForm = ({ isOpen, onClose, onSubmit, editData }: CursoFormProps) => {
               placeholder="Ex: Curso Completo de React"
             />
             {errors.titulo && (
-              <p className="text-sm text-red-600">{String(errors.titulo.message)}</p>
+              <p className="text-sm text-red-600">{errors.titulo.message}</p>
             )}
           </div>
 
@@ -94,7 +93,7 @@ const CursoForm = ({ isOpen, onClose, onSubmit, editData }: CursoFormProps) => {
               rows={4}
             />
             {errors.descricao && (
-              <p className="text-sm text-red-600">{String(errors.descricao.message)}</p>
+              <p className="text-sm text-red-600">{errors.descricao.message}</p>
             )}
           </div>
 
@@ -119,7 +118,7 @@ const CursoForm = ({ isOpen, onClose, onSubmit, editData }: CursoFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="nivel">Nível *</Label>
-              <Select value={nivel} onValueChange={setNivel}>
+              <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o nível" />
                 </SelectTrigger>

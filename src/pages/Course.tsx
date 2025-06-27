@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Play, Plus, Edit, Trash2, User, Calendar, BookOpen, Activity, Clock, FileText } from "lucide-react";
+import { ArrowLeft, Play, Plus, Edit, Trash2, User, Calendar, BookOpen, Activity } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import AulaForm from "@/components/forms/AulaForm";
 import AtividadeForm from "@/components/forms/AtividadeForm";
@@ -15,9 +16,7 @@ const mockCourse = {
   materia: "Programação Web",
   autor: "Prof. João Silva",
   capa: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop",
-  descricao: "Aprenda React do básico ao avançado, incluindo hooks, context API, e desenvolvimento de aplicações completas.",
-  totalAulas: 3,
-  duracaoTotal: "2 horas"
+  descricao: "Aprenda React do básico ao avançado, incluindo hooks, context API, e desenvolvimento de aplicações completas."
 };
 
 const mockAulas = [
@@ -83,15 +82,12 @@ interface CourseProps {
   user?: any;
 }
 
-const Course = () => {
+const Course = ({ user }: CourseProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>({ 
-    id: 1, 
-    nome: "João Silva", 
-    tipo: "professor", 
-    foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" 
-  });
+  const [course] = useState(mockCourse);
+  const [aulas] = useState(mockAulas);
+  const [atividades] = useState(mockAtividades);
   const [showAulaForm, setShowAulaForm] = useState(false);
   const [showAtividadeForm, setShowAtividadeForm] = useState(false);
   const [editingAula, setEditingAula] = useState<any>(null);
@@ -100,8 +96,8 @@ const Course = () => {
   const isProfessor = user?.tipo === 'professor';
   
   // Calcular progresso
-  const totalAulas = mockCourse.totalAulas;
-  const aulasCompletas = mockCourse.totalAulas;
+  const totalAulas = aulas.length;
+  const aulasCompletas = aulas.filter(aula => aula.concluida).length;
   const progressoPercentual = totalAulas > 0 ? (aulasCompletas / totalAulas) * 100 : 0;
 
   const handleAcessarAula = (aulaId: number) => {
@@ -110,20 +106,20 @@ const Course = () => {
 
   const handleCriarAula = (data: any) => {
     console.log("Criando aula:", data);
-    setShowAulaForm(false);
+    // Aqui você faria a chamada para a API
   };
 
-  const handleEditAula = (aula: any) => {
+  const handleEditarAula = (aula: any) => {
     setEditingAula(aula);
     setShowAulaForm(true);
   };
 
   const handleCriarAtividade = (data: any) => {
     console.log("Criando atividade:", data);
-    setShowAtividadeForm(false);
+    // Aqui você faria a chamada para a API
   };
 
-  const handleEditAtividade = (atividade: any) => {
+  const handleEditarAtividade = (atividade: any) => {
     setEditingAtividade(atividade);
     setShowAtividadeForm(true);
   };
@@ -143,7 +139,7 @@ const Course = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4 py-4">
@@ -175,31 +171,31 @@ const Course = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
         {/* Course Header */}
         <div className="mb-8">
           <div className="flex items-start space-x-6">
             <img
-              src={mockCourse.capa}
-              alt={mockCourse.titulo}
+              src={course.capa}
+              alt={course.titulo}
               className="w-48 h-32 object-cover rounded-lg shadow-md"
             />
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {mockCourse.titulo}
+                {course.titulo}
               </h1>
               <Badge variant="secondary" className="mb-3">
-                {mockCourse.materia}
+                {course.materia}
               </Badge>
-              {mockCourse.descricao && (
+              {course.descricao && (
                 <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                  {mockCourse.descricao}
+                  {course.descricao}
                 </p>
               )}
               <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
                   <User className="h-4 w-4 mr-1" />
-                  {mockCourse.autor}
+                  {course.autor}
                 </div>
                 <div className="flex items-center">
                   <BookOpen className="h-4 w-4 mr-1" />
@@ -207,7 +203,7 @@ const Course = () => {
                 </div>
                 <div className="flex items-center">
                   <Activity className="h-4 w-4 mr-1" />
-                  {mockCourse.atividades?.length} atividades
+                  {atividades.length} atividades
                 </div>
               </div>
             </div>
@@ -218,177 +214,186 @@ const Course = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Aulas Section */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center">
-                    <Play className="h-5 w-5 mr-2 text-teal-500" />
-                    Aulas do Curso
-                  </CardTitle>
-                  <CardDescription>
-                    {mockCourse.totalAulas} aulas • {mockCourse.duracaoTotal} de conteúdo
-                  </CardDescription>
-                </div>
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                  <Play className="h-6 w-6 mr-2 text-teal-500" />
+                  Aulas
+                </h2>
                 {isProfessor && (
                   <Button 
                     onClick={() => setShowAulaForm(true)}
                     className="bg-teal-500 hover:bg-teal-600"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Nova Aula
+                    Adicionar Aula
                   </Button>
                 )}
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockCourse.aulas.map((aula, index) => (
-                    <div key={aula.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              </div>
+
+              <div className="space-y-4">
+                {aulas.map((aula) => (
+                  <Card key={aula.id} className="bg-white dark:bg-gray-800 hover:shadow-lg transition-all duration-200">
+                    <CardContent className="p-6">
                       <div className="flex items-center space-x-4">
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-lg flex items-center justify-center">
-                            <span className="text-teal-600 dark:text-teal-400 font-semibold">
-                              {index + 1}
-                            </span>
-                          </div>
+                        <div className="relative">
+                          <img
+                            src={aula.capa}
+                            alt={aula.titulo}
+                            className="w-20 h-14 object-cover rounded-lg"
+                          />
+                          {aula.concluida && (
+                            <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1">
+                              <Play className="h-3 w-3 text-white" />
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-medium text-gray-900 dark:text-white truncate">
-                            {aula.titulo}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                            {aula.descricao}
-                          </p>
-                          <div className="flex items-center mt-2 space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                            <span className="flex items-center">
-                              <Clock className="h-4 w-4 mr-1" />
-                              {aula.duracao}
-                            </span>
-                            {aula.materiais && (
-                              <span className="flex items-center">
-                                <FileText className="h-4 w-4 mr-1" />
-                                {aula.materiais.length} materiais
-                              </span>
-                            )}
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                                {aula.numero}. {aula.titulo}
+                              </h3>
+                              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                                <span>{aula.materia}</span>
+                                <span>•</span>
+                                <span>{aula.autor}</span>
+                                <span>•</span>
+                                <div className="flex items-center">
+                                  <Calendar className="h-3 w-3 mr-1" />
+                                  {aula.dataPublicacao}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex space-x-2">
+                              <Button
+                                size="sm"
+                                className="bg-teal-500 hover:bg-teal-600 text-white"
+                                onClick={() => handleAcessarAula(aula.id)}
+                              >
+                                Acessar
+                              </Button>
+                              {isProfessor && (
+                                <>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="text-blue-600 hover:text-blue-700"
+                                    onClick={() => handleEditarAula(aula)}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="text-red-600 hover:text-red-700"
+                                    onClick={() => handleApagarAula(aula.id)}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          size="sm"
-                          onClick={() => navigate(`/aula/${aula.id}`)}
-                          className="bg-teal-500 hover:bg-teal-600"
-                        >
-                          <Play className="h-4 w-4 mr-1" />
-                          Assistir
-                        </Button>
-                        {isProfessor && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditAula(aula)}
-                            >
-                              Editar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              Excluir
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
 
             {/* Atividades Section */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center">
-                    <FileText className="h-5 w-5 mr-2 text-purple-500" />
-                    Atividades e Exercícios
-                  </CardTitle>
-                  <CardDescription>
-                    {mockCourse.atividades?.length || 0} atividades disponíveis
-                  </CardDescription>
-                </div>
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                  <Activity className="h-6 w-6 mr-2 text-teal-500" />
+                  Atividades
+                </h2>
                 {isProfessor && (
                   <Button 
                     onClick={() => setShowAtividadeForm(true)}
-                    className="bg-purple-500 hover:bg-purple-600"
+                    className="bg-teal-500 hover:bg-teal-600"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Nova Atividade
+                    Adicionar Atividade
                   </Button>
                 )}
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockCourse.atividades?.map((atividade: any) => (
-                    <div key={atividade.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                            <FileText className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+
+              <div className="space-y-4">
+                {atividades.map((atividade) => (
+                  <Card key={atividade.id} className="bg-white dark:bg-gray-800 hover:shadow-lg transition-all duration-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center">
+                            <span className="text-teal-600 dark:text-teal-400 font-bold">
+                              {atividade.numero}
+                            </span>
+                          </div>
+                          
+                          <div>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                              {atividade.titulo}
+                            </h3>
+                            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                              <span>{atividade.materia}</span>
+                              <span>•</span>
+                              <span>{atividade.autor}</span>
+                              <span>•</span>
+                              <div className="flex items-center">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {atividade.dataPublicacao}
+                              </div>
+                              {atividade.concluida && atividade.pontuacao && (
+                                <>
+                                  <span>•</span>
+                                  <Badge variant={atividade.pontuacao >= 70 ? "default" : "destructive"}>
+                                    {atividade.pontuacao}/100
+                                  </Badge>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                            {atividade.titulo}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {atividade.descricao}
-                          </p>
-                          <div className="flex items-center mt-2 space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                            <span>{atividade.perguntas?.length || 0} perguntas</span>
-                            <Badge variant={atividade.status === 'concluida' ? 'default' : 'secondary'}>
-                              {atividade.status === 'concluida' ? 'Concluída' : 'Pendente'}
-                            </Badge>
-                          </div>
+                        
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            className="bg-teal-500 hover:bg-teal-600 text-white"
+                          >
+                            Acessar
+                          </Button>
+                          {isProfessor && (
+                            <>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="text-blue-600 hover:text-blue-700"
+                                onClick={() => handleEditarAtividade(atividade)}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="text-red-600 hover:text-red-700"
+                                onClick={() => handleApagarAtividade(atividade.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          size="sm"
-                          className="bg-purple-500 hover:bg-purple-600"
-                        >
-                          <Play className="h-4 w-4 mr-1" />
-                          Fazer
-                        </Button>
-                        {isProfessor && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditAtividade(atividade)}
-                            >
-                              Editar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              Excluir
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )) || (
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      Nenhuma atividade disponível ainda.
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
           </div>
 
           {/* Sidebar */}
@@ -402,12 +407,12 @@ const Course = () => {
               <CardContent className="space-y-6">
                 <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
                   <User className="h-4 w-4" />
-                  <span>Instrutor: {mockCourse.autor}</span>
+                  <span>Instrutor: {course.autor}</span>
                 </div>
                 
                 <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
                   <BookOpen className="h-4 w-4" />
-                  <span>{totalAulas} aulas • {mockCourse.atividades?.length} atividades</span>
+                  <span>{totalAulas} aulas • {atividades.length} atividades</span>
                 </div>
                 
                 {!isProfessor && (
@@ -437,7 +442,7 @@ const Course = () => {
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-300">Atividades feitas:</span>
                       <span className="font-medium">
-                        {mockCourse.atividades?.filter(a => a.concluida).length}/{mockCourse.atividades?.length}
+                        {atividades.filter(a => a.concluida).length}/{atividades.length}
                       </span>
                     </div>
                   </div>
@@ -446,33 +451,30 @@ const Course = () => {
             </Card>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Formulários */}
-      {showAulaForm && (
-        <AulaForm
-          isOpen={showAulaForm}
-          onClose={() => {
-            setShowAulaForm(false);
-            setEditingAula(null);
-          }}
-          onSubmit={handleCriarAula}
-          editData={editingAula}
-        />
-      )}
+      <AulaForm
+        isOpen={showAulaForm}
+        onClose={() => {
+          setShowAulaForm(false);
+          setEditingAula(null);
+        }}
+        onSubmit={editingAula ? handleEditarAula : handleCriarAula}
+        editData={editingAula}
+        isEditing={!!editingAula}
+      />
 
-      {showAtividadeForm && (
-        <AtividadeForm
-          isOpen={showAtividadeForm}
-          onClose={() => {
-            setShowAtividadeForm(false);
-            setEditingAtividade(null);
-          }}
-          onSubmit={handleCriarAtividade}
-          editData={editingAtividade}
-          isEditing={!!editingAtividade}
-        />
-      )}
+      <AtividadeForm
+        isOpen={showAtividadeForm}
+        onClose={() => {
+          setShowAtividadeForm(false);
+          setEditingAtividade(null);
+        }}
+        onSubmit={editingAtividade ? handleEditarAtividade : handleCriarAtividade}
+        editData={editingAtividade}
+        isEditing={!!editingAtividade}
+      />
     </div>
   );
 };

@@ -64,16 +64,10 @@ const Index = () => {
   const handleLogin = (userData: any) => {
     setUser(userData);
     setShowLogin(false);
-    
-    // Redirecionar admin para painel administrativo
-    if (userData.tipo === 'admin') {
-      navigate('/admin');
-    }
   };
 
   const handleLogout = () => {
     setUser(null);
-    navigate('/');
   };
 
   const handleAccessCourse = (courseId: number) => {
@@ -86,16 +80,10 @@ const Index = () => {
 
   const handleCriarCurso = (data: any) => {
     console.log("Criando curso:", data);
+    // Aqui você faria a chamada para a API
   };
 
   const isProfessor = user?.tipo === 'professor';
-  const isAdmin = user?.tipo === 'admin';
-
-  // Redirecionar admin para painel se já estiver logado
-  if (isAdmin) {
-    navigate('/admin');
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
@@ -144,11 +132,6 @@ const Index = () => {
                           <span className="flex items-center text-xs text-teal-600 dark:text-teal-400">
                             <span className="flex w-2 h-2 bg-teal-500 rounded-full mr-1.5"></span>
                             Professor
-                          </span>
-                        ) : user.tipo === 'admin' ? (
-                          <span className="flex items-center text-xs text-purple-600 dark:text-purple-400">
-                            <span className="flex w-2 h-2 bg-purple-500 rounded-full mr-1.5"></span>
-                            Administrador
                           </span>
                         ) : (
                           <span className="flex items-center text-xs text-blue-600 dark:text-blue-400">
@@ -369,7 +352,6 @@ const Index = () => {
 
       {showCursoForm && (
         <CursoForm
-          isOpen={showCursoForm}
           onClose={() => setShowCursoForm(false)}
           onSubmit={handleCriarCurso}
         />
